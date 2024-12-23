@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify
+from .auth import token_required  # Import the token_required decorator
 from db_connection import get_db_connection
+import bcrypt
 
 user_routes = Blueprint('users', __name__)
 
 # Get all users
 @user_routes.route('/', methods=['GET'])
+@token_required
 def get_all_users():
     connection = get_db_connection()
     try:
@@ -20,6 +23,7 @@ def get_all_users():
 
 # Get user by ID
 @user_routes.route('/<int:user_id>', methods=['GET'])
+@token_required
 def get_user_by_id(user_id):
     connection = get_db_connection()
     try:
@@ -35,9 +39,15 @@ def get_user_by_id(user_id):
         if connection:
             connection.close()
 
+# TODO: user can only chage their data
 # Update user details
 @user_routes.route('/<int:user_id>', methods=['PUT'])
+@token_required
 def update_user(user_id):
+    current_user_id = request.user['user_id']  # Access user data from token
+    if current_user_id != user_id:
+        return jsonify({'message': 'Unauthorized to update this user!'}), 403
+
     data = request.get_json()
     if not data:
         return jsonify({'message': 'Invalid JSON payload'}), 400
@@ -62,8 +72,9 @@ def update_user(user_id):
             query += "`email` = %s, "
             params.append(email)
         if password:
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             query += "`password` = %s, "
-            params.append(password)
+            params.append(hashed_password)
 
         query = query.rstrip(', ')  # Remove trailing comma
         query += " WHERE `id` = %s"
