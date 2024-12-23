@@ -74,7 +74,7 @@ def get_team_by_id(team_id):
         if connection:
             connection.close()
 
-# TODO: this needs to add respective entry to Team_user
+# TODO: this needs to add respective entry to Team_user FIX
 @team_routes.route('/', methods=['POST'])
 @login_required
 def create_team():
@@ -116,7 +116,7 @@ def create_team():
 
 
 
-
+# TODO: FIX
 # Delete a team
 @team_routes.route('/<int:team_id>', methods=['DELETE'])
 @login_required
@@ -164,6 +164,7 @@ def update_team(team_id):
         if connection:
             connection.close()
 
+# TODO: fix error 500
 # Add user to team
 @team_routes.route('/<int:team_id>/add_user', methods=['POST'])
 @login_required
@@ -197,6 +198,7 @@ def add_user_to_team(team_id):
         if connection:
             connection.close()
 
+# TODO: fix + check if current user is the one that gets deleted and deny
 # Remove user from team
 @team_routes.route('/<int:team_id>/remove_user/<int:user_id>', methods=['DELETE'])
 @login_required
@@ -217,11 +219,11 @@ def remove_user_from_team(team_id, user_id):
             connection.close()
 
 
-# TODO: fix
+# TODO: fix error 500
 @team_routes.route('/<int:team_id>/members', methods=['GET'])
 @login_required
 def list_team_members(team_id):
-    print(f"Current user: {current_user}")  # Debugging line
+    # print(f"Current user: {current_user}")  # Debugging line
     connection = get_db_connection()
     try:
         cursor = connection.cursor(dictionary=True)
@@ -244,7 +246,7 @@ def list_team_members(team_id):
             connection.close()
 
 
-
+# TODO: check
 # Change user role in a team
 @team_routes.route('/<int:team_id>/change_role/<int:user_id>', methods=['PUT'])
 @login_required

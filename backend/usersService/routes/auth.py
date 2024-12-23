@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from db_connection import get_db_connection
 import bcrypt
 
+
 # Initialize Blueprint
 auth_routes = Blueprint('auth', __name__)
 
@@ -16,23 +17,6 @@ class User(UserMixin):
         self.username = username
         self.email = email
 
-# User loader function for Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    connection = get_db_connection()
-    try:
-        if connection:
-            cursor = connection.cursor()
-            cursor.execute("SELECT id, username, email FROM `User` WHERE id = %s", (user_id,))
-            user = cursor.fetchone()
-            if user:
-                return User(id=user[0], username=user[1], email=user[2])
-    except Exception as err:
-        print(f"Error: {err}")
-    finally:
-        if connection:
-            connection.close()
-    return None
 
 @auth_routes.route('/signup', methods=['POST'])
 def signup():
@@ -58,12 +42,19 @@ def signup():
                 VALUES (%s, %s, %s)
             """, (username, email, hashed_password))
             connection.commit()
-            return jsonify({'message': 'User registered successfully!'}), 201
+
+            # Retrieve the newly created user's ID
+            user_id = cursor.lastrowid
+            user_obj = User(id=user_id, username=username, email=email)
+            login_user(user_obj)  # Log the user in
+
+            return jsonify({'message': 'User registered and logged in successfully!', 'user_id': user_id}), 201
     except Exception as err:
         return jsonify({'error': str(err)}), 500
     finally:
         if connection:
             connection.close()
+
 
 @auth_routes.route('/login', methods=['POST'])
 def login():
@@ -92,6 +83,7 @@ def login():
     finally:
         if connection:
             connection.close()
+
 
 @auth_routes.route('/logout', methods=['POST'])
 @login_required
