@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../styles.css'; // Adjusted to point to the parent folder
+import '../styles.css';
 
 const UsersTable = () => {
     const [users, setUsers] = useState([]);

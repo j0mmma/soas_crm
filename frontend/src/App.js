@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import LoginSignup from './components/LoginSignup';
 import UserInfo from './components/UserInfo';
 import TeamInfo from './components/TeamInfo';
+import DealsPage from './components/DealsList'; // Import DealsPage
 import './styles.css';
 
 const Header = ({ isAuthenticated, onLogout }) => (
@@ -21,6 +22,9 @@ const Header = ({ isAuthenticated, onLogout }) => (
             </li>
             <li>
               <Link to="/my-team">My Team</Link>
+            </li>
+            <li>
+              <Link to="/deals">Deals</Link> {/* Add Deals link */}
             </li>
             <li>
               <button onClick={onLogout}>Logout</button>
@@ -70,6 +74,7 @@ const App = () => {
         <Route path="/signup" element={<LoginSignup isLogin={false} onAuthChange={() => setIsAuthenticated(true)} />} />
         <Route path="/profile" element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />} />
         <Route path="/my-team" element={isAuthenticated ? <TeamInfo /> : <Navigate to="/login" />} />
+        <Route path="/deals" element={isAuthenticated ? <DealsPage /> : <Navigate to="/login" />} /> {/* Add Deals route */}
         <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} />} />
       </Routes>
     </Router>

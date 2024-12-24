@@ -1,5 +1,11 @@
 import mysql.connector
-from backend.usersService.models.config import DB_CONFIG
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'rootroot',
+    'database': 'crm_deals'
+}
 
 def get_db_connection():
     try:

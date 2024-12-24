@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import '../styles.css';
 
 const TeamInfo = () => {
   const [teamData, setTeamData] = useState(null);
