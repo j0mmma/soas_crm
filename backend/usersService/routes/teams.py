@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
 from flask_login import login_required, current_user
-from db_connection import get_db_connection
+from backend.usersService.models.db_connection import get_db_connection
 
 team_routes = Blueprint('teams', __name__)
 

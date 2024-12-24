@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 import jwt
 import datetime
 from functools import wraps
-from db_connection import get_db_connection
+from backend.usersService.models.db_connection import get_db_connection
 import bcrypt
 
 # Blueprint for auth routes

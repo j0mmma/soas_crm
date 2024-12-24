@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from .auth import token_required  # Import the token_required decorator
-from db_connection import get_db_connection
+from backend.usersService.models.db_connection import get_db_connection
 import bcrypt
 
 user_routes = Blueprint('users', __name__)
