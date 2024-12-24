@@ -72,14 +72,20 @@ class AuthController:
             # Fetch additional team info using Team model
             team_info = Team.get_team_info_by_user_id(user.id)
 
-            team_id = team_info.team_id if team_info else None
-            is_admin = team_info.role_id == 2 if team_info else False  # Assuming role_id '2' is admin
-            is_owner = team_info.owner_id == user.id if team_info else False
+            if team_info:
+                team_id = team_info.team_id
+                is_owner = team_info.owner_id == user.id
+                is_admin = any(member['role_id'] == 2 for member in Team.get_team_members(team_id) if member['user_id'] == user.id)
+            else:
+                team_id = None
+                is_owner = False
+                is_admin = False
 
             token = self.generate_token(user.id, team_id, is_owner, is_admin)
             return jsonify({'message': 'Login successful!', 'token': token}), 200
         except Exception as err:
             return jsonify({'error': str(err)}), 500
+
 
     @token_required
     def refresh_token(self):

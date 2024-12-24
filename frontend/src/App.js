@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import LoginSignup from './components/LoginSignup';
 import UserInfo from './components/UserInfo';
-
+import TeamInfo from './components/TeamInfo';
 import './styles.css';
 
 const Header = ({ isAuthenticated, onLogout }) => (
@@ -17,6 +18,9 @@ const Header = ({ isAuthenticated, onLogout }) => (
             </li>
             <li>
               <Link to="/profile">Profile</Link>
+            </li>
+            <li>
+              <Link to="/my-team">My Team</Link>
             </li>
             <li>
               <button onClick={onLogout}>Logout</button>
@@ -40,23 +44,21 @@ const App = () => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token from storage:", decoded); // Debug log
         if (decoded.exp * 1000 > Date.now()) {
           setIsAuthenticated(true);
         } else {
           localStorage.removeItem('jwt');
         }
-      } catch (error) {
-        console.error("Error decoding token:", error); // Debug log
+      } catch {
         localStorage.removeItem('jwt');
       }
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('jwt'); // Clear JWT from localStorage
-    setIsAuthenticated(false); // Update authentication state
-    window.location.href = '/login'; // Redirect to login page
+    localStorage.removeItem('jwt');
+    setIsAuthenticated(false);
+    window.location.href = '/login';
   };
 
   return (
@@ -66,10 +68,8 @@ const App = () => {
         <Route path="/" element={<div>Home Page</div>} />
         <Route path="/login" element={<LoginSignup isLogin={true} onAuthChange={() => setIsAuthenticated(true)} />} />
         <Route path="/signup" element={<LoginSignup isLogin={false} onAuthChange={() => setIsAuthenticated(true)} />} />
-        <Route
-          path="/profile"
-          element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />}
-        />
+        <Route path="/profile" element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />} />
+        <Route path="/my-team" element={isAuthenticated ? <TeamInfo /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} />} />
       </Routes>
     </Router>
