@@ -1,17 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
+
+import '../styles.css'
 
 const UserInfo = () => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    const token = localStorage.getItem('jwt');
+    if (!token) return;
 
-    axios
-      .get(`http://localhost:5000/users/${userId}`)
-      .then((response) => setUserData(response.data))
-      .catch((error) => console.error('Error fetching user data:', error));
+    try {
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.user_id;
+
+      axios
+        .get(`http://localhost:5000/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => setUserData(response.data))
+        .catch((error) => console.error('Error fetching user data:', error));
+    } catch (error) {
+      console.error('Invalid token:', error);
+    }
   }, []);
 
   if (!userData) return <p>Loading user info...</p>;

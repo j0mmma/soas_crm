@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
 
-const LoginSignup = ({ isLogin }) => {
+import '../styles.css';
+
+const LoginSignup = ({ isLogin, onAuthChange = () => {} }) => {
   const [formData, setFormData] = useState({ email: '', password: '', username: '' });
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -13,18 +16,25 @@ const LoginSignup = ({ isLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form data submitted:", formData); // Debug log
     try {
       const endpoint = isLogin ? '/auth/login' : '/auth/signup';
       const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
-      
-      if (isLogin) {
-        localStorage.setItem('userId', response.data.user_id); // Store user ID
-        setMessage('Login successful!');
-        navigate('/user');
+
+      console.log("Server response:", response.data); // Debug log
+
+      const token = response.data.token; // JWT token returned from the backend
+      if (token) {
+        console.log("Decoded token:", jwtDecode(token)); // Log decoded token
+        localStorage.setItem('jwt', token); // Store JWT in localStorage
+        setMessage(isLogin ? 'Login successful!' : 'Signup and login successful!');
+        onAuthChange(); // Notify App component about auth change
+        navigate('/'); // Redirect to the home page
       } else {
         setMessage(response.data.message);
       }
     } catch (error) {
+      console.error("Error occurred during request:", error); // Debug log
       setMessage(error.response?.data?.message || 'An error occurred.');
     }
   };

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
-import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
 import LoginSignup from './components/LoginSignup';
 import UserInfo from './components/UserInfo';
+
+import './styles.css';
 
 const Header = ({ isAuthenticated, onLogout }) => (
   <header>
@@ -14,7 +16,7 @@ const Header = ({ isAuthenticated, onLogout }) => (
               <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="/user">User Page</Link>
+              <Link to="/profile">Profile</Link>
             </li>
             <li>
               <button onClick={onLogout}>Logout</button>
@@ -31,16 +33,30 @@ const Header = ({ isAuthenticated, onLogout }) => (
 );
 
 const App = () => {
-  const isAuthenticated = !!localStorage.getItem('userId');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      await axios.post('http://localhost:5000/auth/logout'); // Call the logout endpoint
-      localStorage.removeItem('userId'); // Clear userId from localStorage
-      window.location.href = '/login'; // Redirect to login page
-    } catch (error) {
-      console.error('Error logging out:', error);
+  useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token from storage:", decoded); // Debug log
+        if (decoded.exp * 1000 > Date.now()) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('jwt');
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error); // Debug log
+        localStorage.removeItem('jwt');
+      }
     }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwt'); // Clear JWT from localStorage
+    setIsAuthenticated(false); // Update authentication state
+    window.location.href = '/login'; // Redirect to login page
   };
 
   return (
@@ -48,10 +64,13 @@ const App = () => {
       <Header isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<div>Home Page</div>} />
-        <Route path="/login" element={<LoginSignup isLogin={true} />} />
-        <Route path="/signup" element={<LoginSignup isLogin={false} />} />
-        <Route path="/user" element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginSignup isLogin={true} onAuthChange={() => setIsAuthenticated(true)} />} />
+        <Route path="/signup" element={<LoginSignup isLogin={false} onAuthChange={() => setIsAuthenticated(true)} />} />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />}
+        />
+        <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} />} />
       </Routes>
     </Router>
   );
