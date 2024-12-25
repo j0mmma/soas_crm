@@ -23,12 +23,13 @@ const DealPage = () => {
   });
   const [ownerName, setOwnerName] = useState('');
   const [message, setMessage] = useState('');
+  const [assigneeNames, setAssigneeNames] = useState({});
 
   useEffect(() => {
     const fetchDealDetails = async () => {
       try {
         const token = localStorage.getItem('jwt');
-
+  
         // Fetch deal details from the deals service
         const dealResponse = await axios.get(`http://localhost:5001/deals/${id}`, {
           headers: {
@@ -36,7 +37,7 @@ const DealPage = () => {
           },
         });
         setDeal(dealResponse.data);
-
+  
         // Fetch contacts associated with the deal
         const contactsResponse = await axios.get(`http://localhost:5001/contacts/${id}`, {
           headers: {
@@ -44,15 +45,40 @@ const DealPage = () => {
           },
         });
         setContacts(contactsResponse.data);
-
+  
         // Fetch tasks associated with the deal
         const tasksResponse = await axios.get(`http://localhost:5001/tasks/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setTasks(tasksResponse.data);
-
+  
+        const tasks = tasksResponse.data;
+  
+        // Fetch assignee names for tasks
+        const names = {};
+        await Promise.all(
+          tasks.map(async (task) => {
+            if (task.assignee_id && !names[task.assignee_id]) {
+              try {
+                console.log(`Fetching assignee name for ID: ${task.assignee_id}`);
+                const assigneeResponse = await axios.get(`http://localhost:5000/users/${task.assignee_id}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+                console.log(`Assignee name fetched: ${assigneeResponse.data.username}`);
+                names[task.assignee_id] = assigneeResponse.data.username;
+              } catch (error) {
+                console.error(`Error fetching assignee with ID ${task.assignee_id}:`, error);
+              }
+            }
+          })
+        );
+  
+        setTasks(tasks);
+        setAssigneeNames(names);
+  
         // Fetch the owner's name from the users service
         const ownerResponse = await axios.get(`http://localhost:5000/users/${dealResponse.data.owner_id}`, {
           headers: {
@@ -64,9 +90,10 @@ const DealPage = () => {
         console.error('Error fetching deal, contacts, tasks, or owner:', error);
       }
     };
-
+  
     fetchDealDetails();
   }, [id]);
+  
 
   const handleAddContact = async (e) => {
     e.preventDefault();
@@ -126,20 +153,25 @@ const DealPage = () => {
     setMessage('');
     try {
       const token = localStorage.getItem('jwt');
-
-      // Add a new task to the deal
+  
+      // Decode the token to extract the current user's ID
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const currentUserId = decodedToken.user_id;
+  
+      // Add a new task to the deal with the current user as assignee
       const response = await axios.post(
         `http://localhost:5001/tasks/create`,
-        { ...newTask, deal_id: id },
+        { ...newTask, deal_id: id, assignee_id: currentUserId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+  
       setMessage('Task added successfully!');
-      setNewTask({ title: '', description: '', due: '', assignee_id: '' });
-
+      setNewTask({ title: '', description: '', due: '' });
+  
       // Refresh the tasks list
       const updatedTasks = await axios.get(`http://localhost:5001/tasks/${id}`, {
         headers: {
@@ -151,6 +183,7 @@ const DealPage = () => {
       setMessage(error.response?.data?.message || 'An error occurred while adding the task.');
     }
   };
+  
 
   const handleRemoveTask = async (taskId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this task? This action cannot be undone.');
@@ -173,6 +206,27 @@ const DealPage = () => {
       setMessage('Error deleting task. Please try again.');
     }
   };
+  
+  const handleUpdateTaskStatus = async (taskId, currentStatus) => {
+    try {
+      const token = localStorage.getItem('jwt');
+      await axios.patch(
+        `http://localhost:5001/tasks/update-status/${taskId}`,
+        { done: !currentStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId ? { ...task, done: !currentStatus } : task
+        )
+      );
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      setMessage('Failed to update task status');
+    }
+  };
+
 
   if (!deal) return <p>Loading deal details...</p>;
 
@@ -195,7 +249,6 @@ const DealPage = () => {
         <details>
                 <summary>
                     Add New Task
-
                 </summary>
                 <form onSubmit={handleAddTask}>
                     <input
@@ -215,27 +268,29 @@ const DealPage = () => {
                     value={newTask.due}
                     onChange={(e) => setNewTask({ ...newTask, due: e.target.value })}
                     />
-                    <select
-                    value={newTask.assignee_id}
-                    onChange={(e) => setNewTask({ ...newTask, assignee_id: e.target.value })}
-                    required
-                    >
-                    <option value="">Select Assignee</option>
-                    {contacts.map((contact) => (
-                        <option key={contact.contact_id} value={contact.contact_id}>
-                        {contact.first_name} {contact.last_name}
-                        </option>
-                    ))}
-                    </select>
                     <button type="submit">Add Task</button>
                 </form>
                 {message && <p>{message}</p>}
             </details>
             <ul>
                 {tasks.map((task) => (
-                <li key={task.id}>
-                    {task.title} ({task.done ? 'Completed' : 'TODO'}) - Due: {new Date(task.due).toLocaleDateString()}
-                    <button onClick={() => handleRemoveTask(task.id)}>Delete</button>
+                <li key={task.id} className='deal-task-card'>
+                    <h4>
+                        {task.title}
+                    </h4>
+                    <p>
+                        Status: {task.done ? 'Completed' : 'TODO'}
+                    </p>
+                    <p>
+                        Due: {new Date(task.due).toLocaleDateString()}
+                    </p>
+                    <p>Assigned to: {assigneeNames[task.assignee_id] || 'Unknown'}</p>
+                    <div className='task-buttons'>
+                        <button onClick={() => handleUpdateTaskStatus(task.id, task.done)}>
+                            Mark as {task.done ? 'TODO' : 'Completed'}
+                        </button>
+                        <button onClick={() => handleRemoveTask(task.id)}>Delete</button>
+                    </div>
                 </li>
                 ))}
             </ul>

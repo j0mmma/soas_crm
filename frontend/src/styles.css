@@ -239,3 +239,26 @@ details{
 .deal-tasks{
   width: 30rem;
 }
+
+li{
+  list-style: none;
+}
+
+.deal-task-card{
+  margin: 1rem;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+.task-buttons *{
+  display: block;
+}
+
+.task-buttons{
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}

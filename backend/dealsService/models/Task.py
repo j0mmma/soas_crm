@@ -45,3 +45,24 @@ class Task:
             raise Exception(f"Error deleting task: {e}")
         finally:
             connection.close()
+
+    @staticmethod
+    def update_task_done(task_id, done):
+        """Update the 'done' status of a task by its ID"""
+        connection = get_db_connection()
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""
+                UPDATE Task
+                SET done = %s
+                WHERE id = %s
+            """, (done, task_id))
+            connection.commit()
+
+            if cursor.rowcount == 0:
+                return False  # Task not found or no changes made
+            return True
+        except Exception as e:
+            raise Exception(f"Error updating task status: {e}")
+        finally:
+            connection.close()

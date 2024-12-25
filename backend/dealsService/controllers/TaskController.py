@@ -11,6 +11,7 @@ class TaskController:
         self.blueprint.add_url_rule('/<int:deal_id>', 'get_tasks', self.get_tasks_by_deal, methods=['GET'])
         self.blueprint.add_url_rule('/create', 'create_task', self.create_task, methods=['POST'])
         self.blueprint.add_url_rule('/delete/<int:task_id>', 'delete_task', self.delete_task, methods=['DELETE'])
+        self.blueprint.add_url_rule('/update-status/<int:task_id>', 'update_task_status', self.update_task_status, methods=['PATCH'])
 
     @token_required
     def get_tasks_by_deal(self, deal_id):
@@ -47,5 +48,24 @@ class TaskController:
         try:
             Task.delete_task(task_id)
             return jsonify({'message': 'Task deleted successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @token_required
+    def update_task_status(self, task_id):
+        """Update the 'done' status of a task."""
+        try:
+            data = request.get_json()
+            done = data.get('done')
+
+            if done is None:
+                return jsonify({'message': "'done' field is required"}), 400
+
+            updated = Task.update_task_done(task_id, done)
+
+            if not updated:
+                return jsonify({'message': 'Task not found'}), 404
+
+            return jsonify({'message': 'Task status updated successfully'}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
