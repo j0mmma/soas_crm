@@ -62,3 +62,46 @@ class Contact:
         finally:
             if connection:
                 connection.close()
+
+    @staticmethod
+    def delete_contact(contact_id):
+        """Delete a contact and its associated Deal_Contact record."""
+        connection = get_db_connection()
+        try:
+            cursor = connection.cursor()
+            
+            # Delete from Deal_Contact
+            cursor.execute("""
+                DELETE FROM Deal_Contact WHERE contact_id = %s
+            """, (contact_id,))
+            
+            # Delete from Contact
+            cursor.execute("""
+                DELETE FROM Contact WHERE id = %s
+            """, (contact_id,))
+            
+            connection.commit()
+        except Exception as e:
+            raise Exception(f"Error deleting contact: {e}")
+        finally:
+            if connection:
+                connection.close()
+
+    @staticmethod
+    def get_contact_by_id(contact_id):
+        """Fetch a contact by its ID."""
+        connection = get_db_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT id, firstName, lastName, email, phone, team_id
+                FROM Contact
+                WHERE id = %s
+            """, (contact_id,))
+            contact = cursor.fetchone()
+            return contact if contact else None
+        except Exception as e:
+            raise Exception(f"Error fetching contact by ID: {e}")
+        finally:
+            if connection:
+                connection.close()

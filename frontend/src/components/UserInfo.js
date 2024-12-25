@@ -31,7 +31,7 @@ const UserInfo = () => {
   if (!userData) return <p>Loading user info...</p>;
 
   return (
-    <div>
+    <div className='main-container'>
       <h2>User Info</h2>
       <p>
         <strong>Username:</strong> {userData.username}

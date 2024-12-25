@@ -81,3 +81,37 @@ class Deal:
         finally:
             if connection:
                 connection.close()
+
+    @staticmethod
+    def get_all_stages():
+        """Fetch all stages from the database."""
+        connection = get_db_connection()
+        try:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT id, name FROM Stage")
+            stages = cursor.fetchall()
+            return stages
+        except Exception as e:
+            raise Exception(f"Error fetching stages: {e}")
+        finally:
+            if connection:
+                connection.close()
+
+    @staticmethod
+    def delete_deal(deal_id):
+        """Delete a deal along with its associated contacts and tasks."""
+        connection = get_db_connection()
+        try:
+            cursor = connection.cursor()
+            # Delete associated tasks
+            cursor.execute("DELETE FROM Task WHERE deal_id = %s", (deal_id,))
+            # Delete associated contacts in the junction table
+            cursor.execute("DELETE FROM Deal_Contact WHERE deal_id = %s", (deal_id,))
+            # Delete the deal
+            cursor.execute("DELETE FROM Deal WHERE id = %s", (deal_id,))
+            connection.commit()
+        except Exception as e:
+            raise Exception(f"Error deleting deal: {e}")
+        finally:
+            if connection:
+                connection.close()

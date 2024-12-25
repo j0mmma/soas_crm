@@ -11,6 +11,9 @@ class DealController:
         self.blueprint.add_url_rule('/all', 'get_deals_by_team', self.get_deals, methods=['GET'])
         self.blueprint.add_url_rule('/create', 'create_deal', self.create_deal, methods=['POST'])
         self.blueprint.add_url_rule('/<int:deal_id>', 'get_deal_by_id', self.get_deal_by_id, methods=['GET'])
+        self.blueprint.add_url_rule('/stages', 'get_all_stages', self.get_all_stages, methods=['GET'])
+        self.blueprint.add_url_rule('/delete/<int:deal_id>', 'delete_deal', self.delete_deal, methods=['DELETE'])
+
 
 
     @token_required
@@ -57,5 +60,35 @@ class DealController:
 
             deal_id = Deal.create_new_deal(title, stage_id, owner_id, team_id)
             return jsonify({'message': 'Deal created successfully', 'deal_id': deal_id}), 201
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @token_required
+    def get_all_stages(self):
+        """Fetch all stages."""
+        try:
+            stages = Deal.get_all_stages()
+            return jsonify(stages), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @token_required
+    def delete_deal(self, deal_id):
+        """Delete a deal if the current user is the owner."""
+        try:
+            user_id = request.user['user_id']  # Extract user ID from token
+
+            # Fetch the deal details
+            deal = Deal.get_deal_by_id(deal_id)
+            if not deal:
+                return jsonify({'message': 'Deal not found'}), 404
+
+            # Check if the current user is the owner
+            if deal['owner_id'] != user_id:
+                return jsonify({'message': 'You do not have permission to delete this deal'}), 403
+
+            # Delete the deal
+            Deal.delete_deal(deal_id)
+            return jsonify({'message': 'Deal deleted successfully'}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500

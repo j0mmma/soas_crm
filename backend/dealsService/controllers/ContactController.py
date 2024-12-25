@@ -11,6 +11,8 @@ class ContactController:
     def register_routes(self):
         self.blueprint.add_url_rule('/<int:deal_id>', 'get_contacts', self.get_contacts, methods=['GET'])
         self.blueprint.add_url_rule('/create', 'create_contact', self.create_contact, methods=['POST'])
+        self.blueprint.add_url_rule('/delete/<int:contact_id>', 'delete_contact', self.delete_contact, methods=['DELETE'])
+
 
 
 
@@ -42,5 +44,23 @@ class ContactController:
 
             contact_id = Contact.create_contact(first_name, last_name, email, phone, team_id, deal_id)
             return jsonify({'message': 'Contact created successfully!', 'contact_id': contact_id}), 201
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @token_required
+    def delete_contact(self, contact_id):
+        """Delete a contact."""
+        try:
+            if not contact_id:
+                return jsonify({'message': 'Contact ID is required'}), 400
+
+            # Check if the contact exists
+            contact = Contact.get_contact_by_id(contact_id)  # Create this helper if needed
+            if not contact:
+                return jsonify({'message': 'Contact not found'}), 404
+
+            # Delete the contact
+            Contact.delete_contact(contact_id)
+            return jsonify({'message': 'Contact deleted successfully'}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500

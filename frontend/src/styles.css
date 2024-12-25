@@ -15,6 +15,8 @@ body {
 /* Header Styling */
 header {
   background-color: #0056b3;
+  max-width: 1200px;
+  margin: 0 auto;;
   color: #ffffff;
   padding: 15px 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -24,6 +26,7 @@ header ul {
   list-style: none;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin: 0;
   padding: 0;
 }
@@ -96,7 +99,7 @@ tr:hover {
 button {
   display: block;
   background-color: #007bff;
-  max-width: 15rem;
+  width: 10rem;
   color: #ffffff;
   border: none;
   padding: 10px 15px;
@@ -115,13 +118,16 @@ button:hover {
 form {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center
+  ;
   gap: 15px;
   margin-top: 20px;
 }
 
 input, select {
   display: block;
-  max-width: 15rem;
+  width: 10rem;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -163,16 +169,73 @@ footer {
 }
 
 .deal-card{
+  padding: 1rem 0;
+  width: 100%;
   border: 1px solid black;
   border-radius: 20px;
-  max-width: 30rem;
   display: flex;
-  justify-content: space-around;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
 .deal-cards-list{
+  padding: 1rem;
+}
+
+.deal_info{
+  display: block;
+  margin-left: 5rem;
+}
+
+.deal_info h3{
+  text-align: left;
+}
+
+a{
+  text-decoration: none;
+}
+
+.deal-remove{
+  height: 3rem;
+  margin: 0 5rem;
+}
+
+.main-container{
+  padding: 1rem;
+  width: 50rem;
+  margin: 0 auto;
+}
+
+.text-centered{
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.deal-contacts-list{
+  margin: 1rem 0;
   display: flex;
-  flex-direction: column;
-  border: 1px solid red;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deal-contacts-list button{
+  height: 2rem;
+  width: 5rem;
+}
+
+.deal-info-container{
+  width: 1200px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+details{
+  margin: 1rem 0;
+}
+
+.deal-tasks{
+  width: 30rem;
 }

@@ -183,7 +183,7 @@ const TeamInfo = () => {
   if (!teamData) return <p>Loading team info...</p>;
 
   return (
-    <div>
+    <div className='main-container'>
       <h2>Team Information</h2>
       <p>
         <strong>Team Name:</strong> {teamData.team_name}
@@ -191,6 +191,28 @@ const TeamInfo = () => {
       <p>
         <strong>Owner:</strong> {teamData.owner_name}
       </p>
+      {teamData.owner_id === userId && (
+        <div>
+          <button onClick={handleDeleteTeam}>Delete Team</button>
+        </div>
+      )}
+      {teamData.members.some((m) => m.user_id === userId && m.role_name === 'Admin') ? (
+        <div className='add-user'>
+          <form onSubmit={handleAddUser}>
+            <input
+              type="email"
+              placeholder="Enter user email"
+              value={newUserEmail}
+              onChange={(e) => setNewUserEmail(e.target.value)}
+              required
+            />
+            <button type="submit">Add User</button>
+          </form>
+          {message && <p>{message}</p>}
+        </div>
+      ) : (
+        <p>You do not have permission to add users to this team.</p>
+      )}
       <table>
         <thead>
           <tr>
@@ -219,29 +241,7 @@ const TeamInfo = () => {
           ))}
         </tbody>
       </table>
-      {teamData.owner_id === userId && (
-        <div>
-          <button onClick={handleDeleteTeam}>Delete Team</button>
-        </div>
-      )}
-      {teamData.members.some((m) => m.user_id === userId && m.role_name === 'Admin') ? (
-        <div>
-          <h3>Add User to Team</h3>
-          <form onSubmit={handleAddUser}>
-            <input
-              type="email"
-              placeholder="Enter user email"
-              value={newUserEmail}
-              onChange={(e) => setNewUserEmail(e.target.value)}
-              required
-            />
-            <button type="submit">Add User</button>
-          </form>
-          {message && <p>{message}</p>}
-        </div>
-      ) : (
-        <p>You do not have permission to add users to this team.</p>
-      )}
+      
     </div>
   );
 };

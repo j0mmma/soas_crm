@@ -40,9 +40,9 @@ const LoginSignup = ({ isLogin, onAuthChange = () => {} }) => {
   };
 
   return (
-    <div>
+    <div className='main-container'>
       <h2>{isLogin ? 'Login' : 'Signup'}</h2>
-      <form onSubmit={handleSubmit}>
+      <form className='login-form' onSubmit={handleSubmit}>
         {!isLogin && (
           <input
             type="text"
@@ -69,7 +69,7 @@ const LoginSignup = ({ isLogin, onAuthChange = () => {} }) => {
         <button type="submit">{isLogin ? 'Login' : 'Signup'}</button>
       </form>
       {message && <p>{message}</p>}
-      <p>
+      <p className='text-centered'>
         {isLogin ? (
           <span>
             Don't have an account? <a href="/signup">Signup</a>
