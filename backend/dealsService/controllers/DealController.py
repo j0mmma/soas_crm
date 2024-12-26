@@ -14,13 +14,10 @@ class DealController:
         self.blueprint.add_url_rule('/stages', 'get_all_stages', self.get_all_stages, methods=['GET'])
         self.blueprint.add_url_rule('/delete/<int:deal_id>', 'delete_deal', self.delete_deal, methods=['DELETE'])
 
-
-
     @token_required
     def get_deal_by_id(self, deal_id):
         """Fetch a specific deal by ID, including its stage and associated contacts."""
         try:
-            # Fetch deal details
             deal = Deal.get_deal_by_id(deal_id)
             if not deal:
                 return jsonify({'error': 'Deal not found'}), 404
@@ -34,7 +31,6 @@ class DealController:
     def get_deals(self):
         """Get all deals for the current user's team."""
         try:
-            # Extract the team_id from the token
             team_id = request.user.get('team_id')
 
             if not team_id:
@@ -52,8 +48,8 @@ class DealController:
             data = request.get_json()
             title = data.get('title')
             stage_id = data.get('stage_id')
-            owner_id = request.user['user_id']  # Extracted from token
-            team_id = request.user['team_id']  # Extracted from token
+            owner_id = request.user['user_id']  
+            team_id = request.user['team_id']  
 
             if not title or not stage_id:
                 return jsonify({'message': 'Title and stage_id are required'}), 400
@@ -76,18 +72,15 @@ class DealController:
     def delete_deal(self, deal_id):
         """Delete a deal if the current user is the owner."""
         try:
-            user_id = request.user['user_id']  # Extract user ID from token
+            user_id = request.user['user_id']  
 
-            # Fetch the deal details
             deal = Deal.get_deal_by_id(deal_id)
             if not deal:
                 return jsonify({'message': 'Deal not found'}), 404
 
-            # Check if the current user is the owner
             if deal['owner_id'] != user_id:
                 return jsonify({'message': 'You do not have permission to delete this deal'}), 403
 
-            # Delete the deal
             Deal.delete_deal(deal_id)
             return jsonify({'message': 'Deal deleted successfully'}), 200
         except Exception as e:

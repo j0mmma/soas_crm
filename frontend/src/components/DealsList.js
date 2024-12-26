@@ -30,18 +30,15 @@ const DealsList = () => {
       try {
         if (!token) return;
 
-        // Fetch stages
         const stagesResponse = await axios.get('http://localhost:5001/deals/stages', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setStages(stagesResponse.data);
 
-        // Fetch deals
         const dealsResponse = await axios.get('http://localhost:5001/deals/all', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Enrich deals with owner names and stage names
         const enrichedDeals = await Promise.all(
           dealsResponse.data.map(async (deal) => {
             const ownerResponse = await axios.get(`http://localhost:5000/users/${deal.owner_id}`, {
@@ -82,7 +79,6 @@ const DealsList = () => {
       setMessage('Deal created successfully!');
       setNewDeal({ title: '', stage_id: '' });
 
-      // Refresh deals list
       const fetchUpdatedDeals = async () => {
         const updatedDealsResponse = await axios.get('http://localhost:5001/deals/all', {
           headers: { Authorization: `Bearer ${token}` },
@@ -122,7 +118,6 @@ const DealsList = () => {
       console.log('Token:', token);
       console.log('Attempting to delete deal with ID:', dealId);
   
-      // Send delete request with the deal ID in the URL
       const response = await axios.delete(`http://localhost:5001/deals/delete/${dealId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -131,7 +126,6 @@ const DealsList = () => {
   
       setMessage('Deal deleted successfully!');
   
-      // Refresh deals list
       const updatedDeals = deals.filter((deal) => deal.id !== dealId);
       console.log('Updated deals after deletion:', updatedDeals);
       setDeals(updatedDeals);
@@ -147,7 +141,6 @@ const DealsList = () => {
     <div className='main-container'>
       <h2>Deals</h2>
 
-      {/* Form to create a new deal */}
       <div className="">
         <form onSubmit={handleCreateDeal}>
           <input
@@ -174,7 +167,6 @@ const DealsList = () => {
         {message && <p>{message}</p>}
       </div>
 
-      {/* List of deals */}
       {error ? (
         <p>{error}</p>
       ) : deals.length ? (

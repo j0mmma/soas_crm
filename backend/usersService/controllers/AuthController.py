@@ -27,7 +27,7 @@ class AuthController:
             'team_id': team_id,
             'is_owner': is_owner,
             'is_admin': is_admin,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)  # Token expires in 30 days
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30) 
         }
         token = jwt.encode(payload, self.SECRET_KEY, algorithm="HS256")
         return token
@@ -47,9 +47,8 @@ class AuthController:
 
         try:
             user = User(username=username, email=email, password=password)
-            user.save()  # Save the user using the User model's `save` method
+            user.save()  
 
-            # Generate JWT token
             token = self.generate_token(user.id)
             return jsonify({'message': 'User registered successfully!', 'token': token}), 201
         except Exception as err:
@@ -65,11 +64,10 @@ class AuthController:
         password = data.get('password')
 
         try:
-            user = User.authenticate(email, password)  # Authenticate user
+            user = User.authenticate(email, password)  
             if not user:
                 return jsonify({'message': 'Invalid credentials'}), 401
 
-            # Fetch additional team info using Team model
             team_info = Team.get_team_info_by_user_id(user.id)
 
             if team_info:

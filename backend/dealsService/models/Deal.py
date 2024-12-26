@@ -16,7 +16,6 @@ class Deal:
         try:
             cursor = connection.cursor(dictionary=True)
             
-            # Fetch deal details and stage
             cursor.execute("""
                 SELECT d.id, d.title, d.owner_id, d.team_id, d.date_created, s.name AS stage_name
                 FROM Deal d
@@ -27,7 +26,6 @@ class Deal:
             if not deal:
                 return None
 
-            # Fetch associated contacts
             cursor.execute("""
                 SELECT c.id AS contact_id, c.firstName, c.lastName, c.email, c.phone
                 FROM Deal_Contact dc
@@ -103,11 +101,8 @@ class Deal:
         connection = get_db_connection()
         try:
             cursor = connection.cursor()
-            # Delete associated tasks
             cursor.execute("DELETE FROM Task WHERE deal_id = %s", (deal_id,))
-            # Delete associated contacts in the junction table
             cursor.execute("DELETE FROM Deal_Contact WHERE deal_id = %s", (deal_id,))
-            # Delete the deal
             cursor.execute("DELETE FROM Deal WHERE id = %s", (deal_id,))
             connection.commit()
         except Exception as e:

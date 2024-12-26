@@ -10,10 +10,8 @@ import atexit
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 
-# Enable CORS
 CORS(app)
 
-# Register Controllers
 deal_controller = DealController()
 contact_controller = ContactController()
 task_controller = TaskController()
@@ -28,11 +26,9 @@ SERVICE_URL = "http://localhost:5001"
 service_registry = ServiceRegistry(SERVICE_NAME, SERVICE_VERSION, SERVICE_URL)
 
 
-# Register service on startup
 if service_registry.register_service():
     print(f"Service '{SERVICE_NAME}' registered and marked as running.")
 
-# Deregister service on shutdown
 atexit.register(service_registry.deregister_service)
 
 

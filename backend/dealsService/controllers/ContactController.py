@@ -13,11 +13,6 @@ class ContactController:
         self.blueprint.add_url_rule('/create', 'create_contact', self.create_contact, methods=['POST'])
         self.blueprint.add_url_rule('/delete/<int:contact_id>', 'delete_contact', self.delete_contact, methods=['DELETE'])
 
-
-
-
-
-
     @token_required
     def get_contacts(self, deal_id):
         """Get all contacts for a specific deal."""
@@ -36,7 +31,7 @@ class ContactController:
             last_name = data.get('last_name')
             email = data.get('email')
             phone = data.get('phone')
-            team_id = request.user.get('team_id')  # Extract team ID from token
+            team_id = request.user.get('team_id')
             deal_id = data.get('deal_id')
 
             if not email or not team_id or not deal_id:
@@ -54,8 +49,7 @@ class ContactController:
             if not contact_id:
                 return jsonify({'message': 'Contact ID is required'}), 400
 
-            # Check if the contact exists
-            contact = Contact.get_contact_by_id(contact_id)  # Create this helper if needed
+            contact = Contact.get_contact_by_id(contact_id) 
             if not contact:
                 return jsonify({'message': 'Contact not found'}), 404
 

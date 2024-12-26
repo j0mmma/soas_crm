@@ -41,7 +41,6 @@ class Contact:
         connection = get_db_connection()
         try:
             cursor = connection.cursor()
-            # Insert new contact
             cursor.execute("""
                 INSERT INTO Contact (firstName, lastName, email, phone, team_id)
                 VALUES (%s, %s, %s, %s, %s)
@@ -49,7 +48,6 @@ class Contact:
             connection.commit()
             contact_id = cursor.lastrowid
 
-            # Associate contact with deal
             cursor.execute("""
                 INSERT INTO Deal_Contact (deal_id, contact_id)
                 VALUES (%s, %s)
@@ -70,12 +68,10 @@ class Contact:
         try:
             cursor = connection.cursor()
             
-            # Delete from Deal_Contact
             cursor.execute("""
                 DELETE FROM Deal_Contact WHERE contact_id = %s
             """, (contact_id,))
             
-            # Delete from Contact
             cursor.execute("""
                 DELETE FROM Contact WHERE id = %s
             """, (contact_id,))

@@ -16,25 +16,25 @@ const LoginSignup = ({ isLogin, onAuthChange = () => {} }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data submitted:", formData); // Debug log
+    console.log("Form data submitted:", formData); 
     try {
       const endpoint = isLogin ? '/auth/login' : '/auth/signup';
       const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
 
-      console.log("Server response:", response.data); // Debug log
+      console.log("Server response:", response.data); 
 
-      const token = response.data.token; // JWT token returned from the backend
+      const token = response.data.token; 
       if (token) {
-        console.log("Decoded token:", jwtDecode(token)); // Log decoded token
-        localStorage.setItem('jwt', token); // Store JWT in localStorage
+        console.log("Decoded token:", jwtDecode(token)); 
+        localStorage.setItem('jwt', token); 
         setMessage(isLogin ? 'Login successful!' : 'Signup and login successful!');
-        onAuthChange(); // Notify App component about auth change
-        navigate('/'); // Redirect to the home page
+        onAuthChange();
+        navigate('/'); 
       } else {
         setMessage(response.data.message);
       }
     } catch (error) {
-      console.error("Error occurred during request:", error); // Debug log
+      console.error("Error occurred during request:", error); 
       setMessage(error.response?.data?.message || 'An error occurred.');
     }
   };

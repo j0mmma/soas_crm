@@ -42,7 +42,6 @@ class Team:
         connection = get_db_connection()
         try:
             cursor = connection.cursor()
-            # Insert the new team
             cursor.execute("""
                 INSERT INTO `Team` (name, owner_id)
                 VALUES (%s, %s)
@@ -50,7 +49,6 @@ class Team:
             connection.commit()
             team_id = cursor.lastrowid
 
-            # Add the owner to the team_user table
             cursor.execute("""
                 INSERT INTO `Team_User` (team_id, user_id, role_id, status_id)
                 VALUES (%s, %s, 2, 1)  -- Role 2 = Admin, Status 1 = Active
@@ -132,9 +130,7 @@ class Team:
         connection = get_db_connection()
         try:
             cursor = connection.cursor()
-            # Delete from Team_User first
             cursor.execute("DELETE FROM `Team_User` WHERE team_id = %s", (team_id,))
-            # Delete the team
             cursor.execute("DELETE FROM `Team` WHERE id = %s", (team_id,))
             connection.commit()
         except Exception as e:

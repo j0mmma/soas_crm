@@ -5,7 +5,7 @@ import axios from 'axios';
 import '../styles.css';
 
 const DealPage = () => {
-  const { id } = useParams(); // Correctly access route params
+  const { id } = useParams(); 
   const [deal, setDeal] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -19,7 +19,7 @@ const DealPage = () => {
     title: '',
     description: '',
     due: '',
-    assignee_id: '', // Added field for assignee
+    assignee_id: '', 
   });
   const [ownerName, setOwnerName] = useState('');
   const [message, setMessage] = useState('');
@@ -30,7 +30,6 @@ const DealPage = () => {
       try {
         const token = localStorage.getItem('jwt');
   
-        // Fetch deal details from the deals service
         const dealResponse = await axios.get(`http://localhost:5001/deals/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -38,7 +37,6 @@ const DealPage = () => {
         });
         setDeal(dealResponse.data);
   
-        // Fetch contacts associated with the deal
         const contactsResponse = await axios.get(`http://localhost:5001/contacts/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,7 +44,6 @@ const DealPage = () => {
         });
         setContacts(contactsResponse.data);
   
-        // Fetch tasks associated with the deal
         const tasksResponse = await axios.get(`http://localhost:5001/tasks/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +52,6 @@ const DealPage = () => {
   
         const tasks = tasksResponse.data;
   
-        // Fetch assignee names for tasks
         const names = {};
         await Promise.all(
           tasks.map(async (task) => {
@@ -79,7 +75,6 @@ const DealPage = () => {
         setTasks(tasks);
         setAssigneeNames(names);
   
-        // Fetch the owner's name from the users service
         const ownerResponse = await axios.get(`http://localhost:5000/users/${dealResponse.data.owner_id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -101,7 +96,6 @@ const DealPage = () => {
     try {
       const token = localStorage.getItem('jwt');
 
-      // Add a new contact to the deal
       const response = await axios.post(
         `http://localhost:5001/contacts/create`,
         { ...newContact, deal_id: id },
@@ -114,7 +108,6 @@ const DealPage = () => {
       setMessage('Contact added successfully!');
       setNewContact({ first_name: '', last_name: '', email: '', phone: '' });
 
-      // Refresh the contacts list
       const updatedContacts = await axios.get(`http://localhost:5001/contacts/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -140,7 +133,6 @@ const DealPage = () => {
 
       setMessage('Contact deleted successfully!');
 
-      // Refresh the contacts list
       const updatedContacts = contacts.filter((contact) => contact.contact_id !== contactId);
       setContacts(updatedContacts);
     } catch (error) {
@@ -154,11 +146,9 @@ const DealPage = () => {
     try {
       const token = localStorage.getItem('jwt');
   
-      // Decode the token to extract the current user's ID
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const currentUserId = decodedToken.user_id;
   
-      // Add a new task to the deal with the current user as assignee
       const response = await axios.post(
         `http://localhost:5001/tasks/create`,
         { ...newTask, deal_id: id, assignee_id: currentUserId },
@@ -172,7 +162,6 @@ const DealPage = () => {
       setMessage('Task added successfully!');
       setNewTask({ title: '', description: '', due: '' });
   
-      // Refresh the tasks list
       const updatedTasks = await axios.get(`http://localhost:5001/tasks/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -199,7 +188,6 @@ const DealPage = () => {
 
       setMessage('Task deleted successfully!');
 
-      // Refresh the tasks list
       const updatedTasks = tasks.filter((task) => task.id !== taskId);
       setTasks(updatedTasks);
     } catch (error) {

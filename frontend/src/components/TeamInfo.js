@@ -122,7 +122,7 @@ const TeamInfo = () => {
         data: { team_id: teamData.team_id },
       });
       setMessage(response.data.message);
-      setTeamData(null); // Clear team data after deletion
+      setTeamData(null); 
       setError('You have successfully deleted your team.');
     } catch (err) {
       setMessage(err.response?.data?.message || 'An error occurred while deleting the team.');

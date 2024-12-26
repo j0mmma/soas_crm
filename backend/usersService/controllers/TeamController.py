@@ -25,7 +25,7 @@ class TeamController:
     def get_my_team(self):
         """Get the current user's team info including name, owner, and members."""
         try:
-            user_id = request.user['user_id']  # Extract user ID from the JWT payload
+            user_id = request.user['user_id'] 
             team = Team.get_team_info_by_user_id(user_id)
 
             if not team:
@@ -47,36 +47,31 @@ class TeamController:
     def add_user_to_team(self):
         """Add a user to the current user's team."""
         try:
-            user_id = request.user['user_id']  # Extract current user's ID from token
+            user_id = request.user['user_id']  
             data = request.get_json()
             email = data.get('email')
 
             if not email:
                 return jsonify({'message': 'Email is required'}), 400
 
-            # Get the current user's team
             team_info = Team.get_team_info_by_user_id(user_id)
             if not team_info:
                 return jsonify({'message': 'You are not part of any team'}), 403
 
-            # Check if the user is an admin
             current_user_role = next(
                 (member for member in Team.get_team_members(team_info.team_id) if member['user_id'] == user_id), None
             )
             if not current_user_role or current_user_role['role_name'] != 'Admin':
                 return jsonify({'message': 'Only admins can add users to the team'}), 403
 
-            # Check if the email exists
             new_user = User.get_by_email(email)
             if not new_user:
                 return jsonify({'message': "User with this email doesn't exist"}), 404
 
-            # Check if the user is already part of another team
             user_team = Team.get_team_info_by_user_id(new_user.id)
             if user_team:
                 return jsonify({'message': 'This user is already part of another team'}), 403
 
-            # Add the user to the team
             Team.add_user_to_team(team_info.team_id, new_user.id)
             return jsonify({'message': 'User added to the team successfully!'}), 201
         except Exception as e:
@@ -100,7 +95,6 @@ class TeamController:
             if not team_info:
                 return jsonify({'message': 'You are not part of any team.'}), 403
 
-            # Check if the current user is an admin
             is_admin = any(
                 member['user_id'] == current_user_id and member['role_name'] == 'Admin'
                 for member in Team.get_team_members(team_id)
@@ -109,11 +103,9 @@ class TeamController:
             if not is_admin:
                 return jsonify({'message': 'You do not have the rights to remove users from this team.'}), 403
 
-            # Prevent removing the team owner
             if user_id_to_remove == team_info.owner_id:
                 return jsonify({'message': 'You cannot remove the owner of the team.'}), 403
 
-            # Remove user from the team
             Team.remove_user_from_team(team_id, user_id_to_remove)
             return jsonify({'message': 'User removed from the team successfully.'}), 200
         except Exception as e:
@@ -124,16 +116,13 @@ class TeamController:
     def delete_team(self):
         """Delete a team if the user is the owner."""
         try:
-            # Extract necessary info from the token
             user_id = request.user['user_id']
             team_id = request.user.get('team_id')
             is_owner = request.user.get('is_owner')
 
-            # Ensure the user is associated with a team
             if not team_id:
                 return jsonify({'message': 'You are not associated with any team'}), 403
 
-            # Check if the user is the owner
             if not is_owner:
                 return jsonify({'message': 'You do not have permission to delete this team'}), 403
 
@@ -144,15 +133,13 @@ class TeamController:
             return jsonify({'error': str(e)}), 500
 
 
-    # TODO: FIX when you create a team you need to hit auth/refresh to refresh the token
     @token_required
     def create_team(self):
         """Create a new team and add the owner to the team_user table."""
         try:
-            user_id = request.user['user_id']  # Extract user ID from token
-            team_id = request.user.get('team_id')  # Extract team ID from token
+            user_id = request.user['user_id'] 
+            team_id = request.user.get('team_id') 
 
-            # Check if the user is already part of a team
             if team_id:
                 return jsonify({'message': 'You are already part of a team and cannot create a new one.'}), 403
 
@@ -161,7 +148,6 @@ class TeamController:
             if not team_name:
                 return jsonify({'message': 'Team name is required'}), 400
 
-            # Use the Team model's create_team method
             try:
                 team_id = Team.create_team(name=team_name, owner_id=user_id)
                 return jsonify({'message': 'Team created successfully!', 'team_id': team_id}), 201

@@ -60,7 +60,7 @@ class Task:
             connection.commit()
 
             if cursor.rowcount == 0:
-                return False  # Task not found or no changes made
+                return False  
             return True
         except Exception as e:
             raise Exception(f"Error updating task status: {e}")

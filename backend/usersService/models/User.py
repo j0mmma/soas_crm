@@ -54,7 +54,7 @@ class User:
                     email=user_data['email'],
                     password=user_data['password']
                 )
-            return None  # Return None if no user is found
+            return None  
         except Exception as e:
             raise Exception(f"Error fetching user by email: {e}")
         finally:
@@ -99,7 +99,7 @@ class User:
                 query += "`password` = %s, "
                 params.append(hashed_password)
 
-            query = query.rstrip(", ")  # Remove trailing comma
+            query = query.rstrip(", ")  
             query += " WHERE `id` = %s"
             params.append(self.id)
 

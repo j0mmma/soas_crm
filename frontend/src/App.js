@@ -4,8 +4,8 @@ import { jwtDecode } from 'jwt-decode';
 import LoginSignup from './components/LoginSignup';
 import UserInfo from './components/UserInfo';
 import TeamInfo from './components/TeamInfo';
-import DealsList from './components/DealsList'; // Updated name
-import DealPage from './components/DealPage'; // Added DealPage import
+import DealsList from './components/DealsList'; 
+import DealPage from './components/DealPage'; 
 import './styles.css';
 
 const Header = ({ isAuthenticated, onLogout }) => (
@@ -72,7 +72,7 @@ const App = () => {
         <Route path="/profile" element={isAuthenticated ? <UserInfo /> : <Navigate to="/login" />} />
         <Route path="/my-team" element={isAuthenticated ? <TeamInfo /> : <Navigate to="/login" />} />
         <Route path="/deals" element={isAuthenticated ? <DealsList /> : <Navigate to="/login" />} />
-        <Route path="/deals/:id" element={isAuthenticated ? <DealPage /> : <Navigate to="/login" />} /> {/* Added DealPage */}
+        <Route path="/deals/:id" element={isAuthenticated ? <DealPage /> : <Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={isAuthenticated ? '/deals' : '/login'} />} />
       </Routes>
     </Router>
