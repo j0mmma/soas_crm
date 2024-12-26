@@ -7,7 +7,7 @@ const UsersTable = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Fetch users from the backend
+      
         const fetchUsers = async () => {
             try {
                 const response = await fetch('http://localhost:5000/users');
